@@ -12,7 +12,7 @@ import { SignOut } from '@/lib/actions/user.actions'
 
 export default async function UserButton() {
   const session = await auth()
-  if (!session)
+  if (!session || !session.user)
     return (
       <Link href="/api/auth/signin">
         <Button>Sign In</Button>
@@ -27,7 +27,7 @@ export default async function UserButton() {
               variant="ghost"
               className="relative w-16 h-8 rounded-full ml-2"
             >
-              {session.user.name}
+              {session.user.name || 'User'}
             </Button>
           </div>
         </DropdownMenuTrigger>
@@ -35,10 +35,10 @@ export default async function UserButton() {
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
               <p className="text-sm font-medium leading-none">
-                {session.user.name}
+                {session.user.name || 'User'}
               </p>
               <p className="text-xs leading-none text-muted-foreground">
-                {session.user.email}
+                {session.user.email || ''}
               </p>
             </div>
           </DropdownMenuLabel>

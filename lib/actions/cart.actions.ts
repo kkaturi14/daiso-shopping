@@ -14,7 +14,7 @@ export async function getMyCart() {
   const sessionCartId = cookies().get('sessionCartId')?.value
   if (!sessionCartId) return undefined
   const session = await auth()
-  const userId = session?.user.id
+  const userId = session?.user?.id
   const cart = await db.query.carts.findFirst({
     where: userId
       ? eq(carts.userId, userId)
@@ -27,11 +27,11 @@ export async function getMyCart() {
 
 const calcPrice = (items: CartItem[]) => {
   const itemsPrice = round2(
-      items.reduce((acc, item) => acc + item.price * item.qty, 0)
-    ),
-    shippingPrice = round2(itemsPrice > 100 ? 0 : 10),
-    taxPrice = round2(0.15 * itemsPrice),
-    totalPrice = round2(itemsPrice + shippingPrice + taxPrice)
+    items.reduce((acc, item) => acc + item.price * item.qty, 0)
+  )
+  const shippingPrice = round2(itemsPrice > 100 ? 0 : 10)
+  const taxPrice = round2(0.15 * itemsPrice)
+  const totalPrice = round2(itemsPrice + shippingPrice + taxPrice)
   return {
     itemsPrice: itemsPrice.toFixed(2),
     shippingPrice: shippingPrice.toFixed(2),

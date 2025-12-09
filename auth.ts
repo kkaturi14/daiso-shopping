@@ -69,9 +69,10 @@ export const config = {
               cookies().set('beforeSigninSessionCartId', sessionCartId)
               cookies().set('sessionCartId', userCartExists.sessionCartId)
             } else {
-              db.update(carts)
+              await db.update(carts)
                 .set({ userId: user.id })
                 .where(eq(carts.id, sessionCartExists.id))
+                .execute()
             }
           }
         }
@@ -103,19 +104,21 @@ export const config = {
       ]
       const { pathname } = request.nextUrl
       if (!auth && protectedPaths.some((p) => p.test(pathname))) return false
-      if (!request.cookies.get('sessionCartId')) {
-        const sessionCartId = crypto.randomUUID()
-        const newRequestHeaders = new Headers(request.headers)
-        const response = NextResponse.next({
-          request: {
-            headers: newRequestHeaders,
-          },
+      
+      // Ensure sessionCartId cookie exists
+      const sessionCartId = request.cookies.get('sessionCartId')?.value
+      if (!sessionCartId) {
+        const newSessionCartId = crypto.randomUUID()
+        const response = NextResponse.next()
+        response.cookies.set('sessionCartId', newSessionCartId, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24 * 30, // 30 days
         })
-        response.cookies.set('sessionCartId', sessionCartId)
         return response
-      } else {
-        return true
       }
+      return true
     },
   },
 } satisfies NextAuthConfig

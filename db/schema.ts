@@ -12,6 +12,7 @@ import {
 } from 'drizzle-orm/pg-core'
 import { primaryKey } from 'drizzle-orm/pg-core/primary-keys'
 import { AdapterAccountType } from 'next-auth/adapters'
+import { relations } from 'drizzle-orm'
 
 // USERS
 export const users = pgTable('user', {
@@ -113,3 +114,33 @@ export const carts = pgTable('cart', {
   totalPrice: numeric('totalPrice', { precision: 12, scale: 2 }).notNull(),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
 })
+
+// RELATIONS
+export const usersRelations = relations(users, ({ many }) => ({
+  accounts: many(accounts),
+  sessions: many(sessions),
+  carts: many(carts),
+}))
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.userId],
+    references: [users.id],
+  }),
+}))
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.userId],
+    references: [users.id],
+  }),
+}))
+
+export const cartsRelations = relations(carts, ({ one }) => ({
+  user: one(users, {
+    fields: [carts.userId],
+    references: [users.id],
+  }),
+}))
+
+export const productsRelations = relations(products, () => ({}))

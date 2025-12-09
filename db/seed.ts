@@ -11,11 +11,13 @@ loadEnvConfig(cwd())
 
 const main = async () => {
   try {
+    console.log('Connecting to database...')
     const client = new Client({
       connectionString: process.env.POSTGRES_URL,
     })
     await client.connect()
-    const db = drizzle(client)
+    console.log('Connected!')
+    const db = drizzle(client, { schema })
 
     await db.delete(schema.products)
     await db.delete(schema.accounts)
